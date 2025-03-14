@@ -5,7 +5,6 @@ I had a usecase where I needed to limit access to a API endpoint in my Sophos Fi
 
 1. Create a Device Access profile and a API user in Sophos Firewall.
 ![device profile](./assets/images/Device-Profile.png)
-
 ![api user](./assets/images/API-User.png)
 
 2. Allow API access from your local IP address
