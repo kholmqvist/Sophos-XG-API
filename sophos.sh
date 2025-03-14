@@ -12,7 +12,7 @@ NAME_PREFIX="MSGraph_"
 get_subnet_mask() {
     local cidr=$1
     local mask
-    case $cidr in
+    case ${cidr} in
         32) mask="255.255.255.255" ;;
         31) mask="255.255.255.254" ;;
         30) mask="255.255.255.252" ;;
@@ -40,20 +40,20 @@ get_subnet_mask() {
         8) mask="255.0.0.0" ;;
         *) mask="255.255.255.255" ;; # Default to single IP if no valid CIDR
     esac
-    echo "$mask"
+    echo "${mask}"
 }
 
 # Read the CSV file and process each line
 while IFS=, read -r ip; do
-    ip_trimmed=$(echo "$ip" | tr -d ' ')
-    if [[ "$ip_trimmed" == *"/"* ]]; then
-        ip_address=$(echo "$ip_trimmed" | cut -d'/' -f1)
-        cidr=$(echo "$ip_trimmed" | cut -d'/' -f2)
-        subnet_mask="$(get_subnet_mask "$cidr")"
+    ip_trimmed=$(echo "${ip}" | tr -d ' ')
+    if [[ "{$ip_trimmed}" == *"/"* ]]; then
+        ip_address=$(echo "${ip_trimmed}" | cut -d'/' -f1)
+        cidr=$(echo "${ip_trimmed}" | cut -d'/' -f2)
+        subnet_mask="$(get_subnet_mask "${cidr}")"
         host_type="Network"
         name_tag="${NAME_PREFIX}${ip_trimmed}"  # Use CIDR notation in Name tag for networks
     else
-        ip_address="$ip_trimmed"
+        ip_address="${ip_trimmed}"
         subnet_mask="255.255.255.255"
         host_type="IP"
         name_tag="${NAME_PREFIX}${ip_address}"  # Use IP only in Name tag for single IPs
@@ -62,10 +62,10 @@ while IFS=, read -r ip; do
     #echo "DEBUG: Processing $host_type - Name: $name_tag, IP: $ip_address, Subnet: $subnet_mask"
 
     payload="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-    <Request Action=\"ADD\">
+    <Request>
         <Login>
-            <Username>$SOPHOS_API_USERNAME</Username>
-            <Password>$SOPHOS_API_PASSWORD</Password>
+            <Username>${SOPHOS_API_USERNAME}</Username>
+            <Password>${SOPHOS_API_PASSWORD}</Password>
         </Login>
         <Set>
             <IPHost>
@@ -81,11 +81,11 @@ while IFS=, read -r ip; do
         </Set>
     </Request>"
 
-    #echo "DEBUG: Sending payload:\n$payload"
+    #echo "DEBUG: Sending payload:\n${payload}"
     
-    response=$(curl -s -k -X POST "$SOPHOS_API_URL" -d "reqxml=$payload")
+    response=$(curl -s -k -X POST "${SOPHOS_API_URL}" -d "reqxml=${payload}")
     
-    #echo "DEBUG: Response:\n$response"
+    #echo "DEBUG: Response:\n${response}"
 
-done < "$CSV_FILE"
+done < "${CSV_FILE}"
 
