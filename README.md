@@ -6,8 +6,7 @@ Tools for managing Sophos XG Firewalls via API across multiple locations.
 
 | Script | Description |
 |--------|-------------|
-| `sophos.sh` | Add IP/network host objects from a CSV file (XML API) |
-| `blackhole.sh` | Add blackhole routes from a text file across all firewalls (REST API v19+) |
+| `blackhole.sh` | Add blackhole routes from a text file across all firewalls (XML API) |
 
 ---
 
@@ -26,7 +25,7 @@ Tools for managing Sophos XG Firewalls via API across multiple locations.
 2. Allow API access from your local IP address
    ![api](./assets/images/Enable-API.png)
 
-3. For the REST API (v19+), generate an API key/token under **Backup & Firmware > API**
+3. For the XML API, create an API user under **System > Backup & Firmware > API** with appropriate permissions
 
 ---
 
@@ -39,12 +38,14 @@ Credentials are stored in 1Password and injected at runtime — nothing sensitiv
 The `.env` file contains 1Password secret references (not actual secrets). Each firewall has its own set of variables:
 
 ```bash
-# Per-firewall credentials (REST API)
+# Per-firewall credentials (XML API)
 SOPHOS_FREJA_HOST=op://VaultName/FIREWALL_FREJA/hostname
-SOPHOS_FREJA_API_KEY=op://VaultName/FIREWALL_FREJA/api_key
+SOPHOS_FREJA_USERNAME=op://VaultName/FIREWALL_FREJA/username
+SOPHOS_FREJA_PASSWORD=op://VaultName/FIREWALL_FREJA/credential
 
 SOPHOS_ODENSE_HOST=op://VaultName/FIREWALL_ODENSE/hostname
-SOPHOS_ODENSE_API_KEY=op://VaultName/FIREWALL_ODENSE/api_key
+SOPHOS_ODENSE_USERNAME=op://VaultName/FIREWALL_ODENSE/username
+SOPHOS_ODENSE_PASSWORD=op://VaultName/FIREWALL_ODENSE/credential
 
 # ... repeat for each firewall
 ```
@@ -56,9 +57,8 @@ For each firewall, create a 1Password item with these fields:
 | Field | Example Value |
 |-------|---------------|
 | `hostname` | `fw.example.com` or `192.168.1.1` |
-| `api_key` | Your REST API token |
-| `username` | *(optional, for XML API)* |
-| `credential` | *(optional, for XML API)* |
+| `username` | API username |
+| `credential` | API password |
 
 ---
 
@@ -106,14 +106,6 @@ Network: 10.10.10.0/24
   [OK] UNWIND1 - 10.10.10.0/24
 
 === Done ===
-```
-
-### Host Objects (`sophos.sh`)
-
-Adds IP host objects from `ip.csv` to a host group on a single firewall (XML API).
-
-```bash
-op run --env-file=.env -- ./sophos.sh
 ```
 
 ---
