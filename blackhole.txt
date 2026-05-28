@@ -1,0 +1,8 @@
+# Blackhole Routes
+# One IP or network (CIDR) per line
+# Blank lines and comments are ignored
+# Single IPs are treated as /32
+# Examples:
+# 192.168.1.0/24
+# 10.0.0.5
+# 172.16.0.0/16 # inline comments are OK
