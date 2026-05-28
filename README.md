@@ -46,8 +46,6 @@ SOPHOS_FREJA_PASSWORD=op://VaultName/FIREWALL_FREJA/credential
 SOPHOS_ODENSE_HOST=op://VaultName/FIREWALL_ODENSE/hostname
 SOPHOS_ODENSE_USERNAME=op://VaultName/FIREWALL_ODENSE/username
 SOPHOS_ODENSE_PASSWORD=op://VaultName/FIREWALL_ODENSE/credential
-
-# ... repeat for each firewall
 ```
 
 ### 1Password Item Structure
@@ -66,7 +64,7 @@ For each firewall, create a 1Password item with these fields:
 
 ### Blackhole Routes (`blackhole.sh`)
 
-Adds blackhole (null) routes to all 6 firewalls for every IP/network listed in `blackhole.txt`.
+Adds blackhole (null) routes to all firewalls for every IP/network listed in `blackhole.txt`.
 
 **1. Add addresses to `blackhole.txt`** (one per line):
 
@@ -97,13 +95,9 @@ op run --env-file=.env -- ./blackhole.sh /path/to/routes.txt
 ```
 === Adding Blackhole Routes ===
 
-Network: 10.10.10.0/24
-  [OK] FREJA - 10.10.10.0/24
-  [OK] ODENSE - 10.10.10.0/24
-  [OK] FIREWALLIN - 10.10.10.0/24
-  [OK] FIREWALLTH - 10.10.10.0/24
-  [OK] FIREWALLUK - 10.10.10.0/24
-  [OK] UNWIND1 - 10.10.10.0/24
+Route: 10.10.10.0/24 (255.255.255.0)
+  [OK] FREJA - 10.10.10.0/255.255.255.0
+  [OK] ODENSE - 10.10.10.0/255.255.255.0
 
 === Done ===
 ```

@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# blackhole.sh - Add blackhole routes to all Sophos XG firewalls via REST API (v19+)
+# blackhole.sh - Add blackhole routes to all Sophos XG firewalls via XML API
 # Usage: op run --env-file=.env -- ./blackhole.sh
 #
 
 set -euo pipefail
 
-BLACKHOLE_FILE="${1:-blackhole.txt}"
+BLACKHOLE_FILE="blackhole.txt"
 
 # Define firewall names (must match env var prefixes)
-FIREWALLS=("FREJA" "ODENSE" "FIREWALLIN" "FIREWALLTH" "FIREWALLUK" "UNWIND1")
+FIREWALLS=("FREJA" "ODENSE")
 
 # Colors for output
 RED='\033[0;31m'
@@ -23,139 +23,112 @@ if [[ ! -f "${BLACKHOLE_FILE}" ]]; then
     exit 1
 fi
 
-trim() {
-    local value="$1"
-    value="${value#"${value%%[![:space:]]*}"}"
-    value="${value%"${value##*[![:space:]]}"}"
-    echo "${value}"
-}
+# Convert CIDR prefix length to dotted subnet mask
+cidr_to_mask() {
+    local cidr=$1
+    local mask=""
+    local full_octets=$((cidr / 8))
+    local partial_bits=$((cidr % 8))
 
-is_valid_ipv4() {
-    local ip="$1"
-    local octet
-    local -a octets
-
-    [[ "${ip}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
-
-    IFS='.' read -r -a octets <<< "${ip}"
-    for octet in "${octets[@]}"; do
-        [[ "${octet}" =~ ^[0-9]+$ ]] || return 1
-        (( octet >= 0 && octet <= 255 )) || return 1
+    for ((i=0; i<4; i++)); do
+        if (( i < full_octets )); then
+            mask+="255"
+        elif (( i == full_octets )); then
+            mask+="$(( 256 - (1 << (8 - partial_bits)) ))"
+        else
+            mask+="0"
+        fi
+        (( i < 3 )) && mask+="."
     done
-}
-
-normalize_network() {
-    local raw="$1"
-    local ip
-    local cidr
-
-    raw="${raw%%#*}"
-    raw="$(trim "${raw}")"
-    raw="${raw//[[:space:]]/}"
-
-    [[ -n "${raw}" ]] || return 1
-
-    if [[ "${raw}" == */* ]]; then
-        ip="${raw%/*}"
-        cidr="${raw#*/}"
-    else
-        ip="${raw}"
-        cidr="32"
-    fi
-
-    is_valid_ipv4 "${ip}" || return 1
-    [[ "${cidr}" =~ ^[0-9]+$ ]] || return 1
-    (( cidr >= 0 && cidr <= 32 )) || return 1
-
-    echo "${ip}/${cidr}"
+    echo "${mask}"
 }
 
 # Function to add a blackhole route on a single firewall
 add_blackhole_route() {
     local fw_name="$1"
-    local network="$2"
+    local dest_ip="$2"
+    local netmask="$3"
     local host_var="SOPHOS_${fw_name}_HOST"
-    local key_var="SOPHOS_${fw_name}_API_KEY"
+    local user_var="SOPHOS_${fw_name}_USERNAME"
+    local pass_var="SOPHOS_${fw_name}_PASSWORD"
 
     local host="${!host_var:-}"
-    local api_key="${!key_var:-}"
+    local username="${!user_var:-}"
+    local password="${!pass_var:-}"
 
-    if [[ -z "${host}" || -z "${api_key}" ]]; then
+    if [[ -z "${host}" || -z "${username}" || -z "${password}" ]]; then
         echo -e "  ${YELLOW}[SKIP]${NC} ${fw_name} - missing credentials"
         return 0
     fi
 
-    local route_name="blackhole-${network//\//-}"
-    local api_url="https://${host}:4444/api/v2/static_route"
+    local api_url="https://${host}:4444/webconsole/APIController"
 
-    local payload
-    payload=$(cat <<EOF
-{
-    "name": "${route_name}",
-    "destination_network": "${network}",
-    "gateway_type": "blackhole",
-    "admin_status": "enable"
-}
-EOF
-    )
+    local payload="<Request>
+    <Login>
+        <Username>${username}</Username>
+        <Password>${password}</Password>
+    </Login>
+    <Set operation=\"add\">
+        <UnicastRoute>
+            <IPFamily>IPv4</IPFamily>
+            <DestinationIP>${dest_ip}</DestinationIP>
+            <Netmask>${netmask}</Netmask>
+            <Interface>Blackhole</Interface>
+            <Blackhole>Enable</Blackhole>
+            <Distance>0</Distance>
+            <AdministrativeDistance>1</AdministrativeDistance>
+            <Status>ON</Status>
+            <Description>Blackhole route added via API</Description>
+        </UnicastRoute>
+    </Set>
+</Request>"
 
     local response
-    if ! response=$(curl -s -k -w "\n%{http_code}" -X POST "${api_url}" \
-        -H "Authorization: Bearer ${api_key}" \
-        -H "Content-Type: application/json" \
-        -d "${payload}" 2>&1); then
-        echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${network} (curl error)"
-        echo "        ${response}"
-        return 0
-    fi
+    response=$(curl -s -k -X POST "${api_url}" -d "reqxml=${payload}" 2>&1)
 
-    local http_code
-    http_code=$(echo "${response}" | tail -1)
-    local body
-    body=$(echo "${response}" | sed '$d')
-
-    if [[ "${http_code}" == "2"* ]]; then
-        echo -e "  ${GREEN}[OK]${NC} ${fw_name} - ${network}"
+    if echo "${response}" | grep -q "200"; then
+        echo -e "  ${GREEN}[OK]${NC} ${fw_name} - ${dest_ip}/${netmask}"
+    elif echo "${response}" | grep -q "Authentication Successful"; then
+        local status_msg
+        status_msg=$(echo "${response}" | grep -oP '(?<=<Status code=")[^"]+' | tail -1)
+        local status_text
+        status_text=$(echo "${response}" | grep -oP '(?<=<Status code="[0-9]{3}">)[^<]+' | tail -1)
+        echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${dest_ip}/${netmask} (code: ${status_msg})"
+        echo "        ${status_text}"
     else
-        echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${network} (HTTP ${http_code})"
-        echo "        ${body}"
+        echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${dest_ip}/${netmask}"
+        echo "        ${response}"
     fi
 }
 
 # Main loop
 echo "=== Adding Blackhole Routes ==="
-echo "Source: ${BLACKHOLE_FILE}"
 echo ""
 
-processed=0
-invalid=0
-
 while IFS= read -r line; do
-    if ! network="$(normalize_network "${line}")"; then
-        stripped="$(trim "${line%%#*}")"
-        if [[ -n "${stripped}" ]]; then
-            echo -e "${YELLOW}[WARN]${NC} Skipping invalid entry: ${line}"
-            ((invalid+=1))
-        fi
-        continue
+    # Skip empty lines and comments
+    [[ -z "${line}" || "${line}" == \#* ]] && continue
+
+    network=$(echo "${line}" | tr -d ' ')
+
+    # Parse IP and CIDR
+    if [[ "${network}" == *"/"* ]]; then
+        dest_ip=$(echo "${network}" | cut -d'/' -f1)
+        cidr=$(echo "${network}" | cut -d'/' -f2)
+    else
+        dest_ip="${network}"
+        cidr="32"
     fi
 
-    ((processed+=1))
-    echo "Network: ${network}"
+    netmask=$(cidr_to_mask "${cidr}")
+
+    echo "Route: ${dest_ip}/${cidr} (${netmask})"
 
     for fw in "${FIREWALLS[@]}"; do
-        add_blackhole_route "${fw}" "${network}" || true
+        add_blackhole_route "${fw}" "${dest_ip}" "${netmask}"
     done
 
     echo ""
 done < "${BLACKHOLE_FILE}"
-
-if (( processed == 0 )); then
-    echo -e "${YELLOW}No blackhole routes found in ${BLACKHOLE_FILE}.${NC}"
-fi
-
-if (( invalid > 0 )); then
-    echo -e "${YELLOW}Skipped ${invalid} invalid entr$( (( invalid == 1 )) && echo "y" || echo "ies" ).${NC}"
-fi
 
 echo "=== Done ==="
