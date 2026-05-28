@@ -78,7 +78,7 @@ add_blackhole_route() {
             <Distance>0</Distance>
             <AdministrativeDistance>1</AdministrativeDistance>
             <Status>ON</Status>
-            <Description>Blackhole route added via API</Description>
+            <Description>Blackhole route added via API $(date +%Y-%m-%d)</Description>
         </UnicastRoute>
     </Set>
 </Request>"
