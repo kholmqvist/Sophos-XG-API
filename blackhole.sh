@@ -50,6 +50,7 @@ add_blackhole_route() {
     local fw_name="$1"
     local dest_ip="$2"
     local netmask="$3"
+    local description="${4:-}"
     local host_var="SOPHOS_${fw_name}_HOST"
     local user_var="SOPHOS_${fw_name}_USERNAME"
     local pass_var="SOPHOS_${fw_name}_PASSWORD"
@@ -80,7 +81,7 @@ add_blackhole_route() {
             <Distance>0</Distance>
             <AdministrativeDistance>1</AdministrativeDistance>
             <Status>ON</Status>
-            <Description>Blackhole route added via API $(date +%Y-%m-%d)</Description>
+            <Description>${description}</Description>
         </UnicastRoute>
     </Set>
 </Request>"
@@ -114,7 +115,13 @@ for BLACKHOLE_FILE in "${BLACKHOLE_FILES[@]}"; do
         # Skip empty lines and comments
         [[ -z "${line}" || "${line}" == \#* ]] && continue
 
-        # Strip inline comments
+        # Extract inline comment for description
+        comment=""
+        if [[ "${line}" == *"#"* ]]; then
+            comment=$(echo "${line}" | sed 's/[^#]*#\s*//')
+        fi
+
+        # Strip inline comments from network
         network=$(echo "${line}" | sed 's/#.*//' | tr -d ' ')
         [[ -z "${network}" ]] && continue
 
@@ -129,10 +136,17 @@ for BLACKHOLE_FILE in "${BLACKHOLE_FILES[@]}"; do
 
         netmask=$(cidr_to_mask "${cidr}")
 
-        echo "Route: ${dest_ip}/${cidr} (${netmask})"
+        # Build description
+        if [[ -n "${comment}" ]]; then
+            description="Blackhole ${comment} $(date +%Y-%m-%d)"
+        else
+            description="Blackhole $(date +%Y-%m-%d)"
+        fi
+
+        echo "Route: ${dest_ip}/${cidr} (${netmask}) [${description}]"
 
         for fw in "${FIREWALLS[@]}"; do
-            add_blackhole_route "${fw}" "${dest_ip}" "${netmask}"
+            add_blackhole_route "${fw}" "${dest_ip}" "${netmask}" "${description}"
         done
 
         echo ""
