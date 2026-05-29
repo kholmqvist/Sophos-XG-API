@@ -32,3 +32,8 @@
 103.81.230.0/23  # HostRoyale Technologies (AS203020)
 142.147.88.0/21  # xTom (AS6233)
 143.244.32.0/19  # Datacamp Limited (AS212238)
+170.246.52.0/22  # Corporacion Laceibanetsociety (AS263740)
+185.141.119.0/24  # HostRoyale Technologies (AS207990)
+
+# --- Added 2026-05-29 (third wave) ---
+23.162.8.0/24  # Jone Broadband LLC (AS25737)
