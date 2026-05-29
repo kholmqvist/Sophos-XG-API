@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-BLACKHOLE_FILE="blackhole.txt"
+BLACKHOLE_FILES=("blackhole.txt" "blackhole_bruteforce.txt")
 
 # Define firewall names (must match env var prefixes)
 FIREWALLS=("FREJA" "ODENSE" "INDIA" "THAILAND" "ENGLAND" "USA")
@@ -17,11 +17,13 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Check if blackhole file exists
-if [[ ! -f "${BLACKHOLE_FILE}" ]]; then
-    echo -e "${RED}Error: ${BLACKHOLE_FILE} not found${NC}"
-    exit 1
-fi
+# Check if blackhole files exist
+for bf in "${BLACKHOLE_FILES[@]}"; do
+    if [[ ! -f "${bf}" ]]; then
+        echo -e "${RED}Error: ${bf} not found${NC}"
+        exit 1
+    fi
+done
 
 # Convert CIDR prefix length to dotted subnet mask
 cidr_to_mask() {
@@ -104,30 +106,37 @@ add_blackhole_route() {
 echo "=== Adding Blackhole Routes ==="
 echo ""
 
-while IFS= read -r line; do
-    # Skip empty lines and comments
-    [[ -z "${line}" || "${line}" == \#* ]] && continue
-
-    network=$(echo "${line}" | tr -d ' ')
-
-    # Parse IP and CIDR
-    if [[ "${network}" == *"/"* ]]; then
-        dest_ip=$(echo "${network}" | cut -d'/' -f1)
-        cidr=$(echo "${network}" | cut -d'/' -f2)
-    else
-        dest_ip="${network}"
-        cidr="32"
-    fi
-
-    netmask=$(cidr_to_mask "${cidr}")
-
-    echo "Route: ${dest_ip}/${cidr} (${netmask})"
-
-    for fw in "${FIREWALLS[@]}"; do
-        add_blackhole_route "${fw}" "${dest_ip}" "${netmask}"
-    done
-
+for BLACKHOLE_FILE in "${BLACKHOLE_FILES[@]}"; do
+    echo "--- Processing ${BLACKHOLE_FILE} ---"
     echo ""
-done < "${BLACKHOLE_FILE}"
+
+    while IFS= read -r line; do
+        # Skip empty lines and comments
+        [[ -z "${line}" || "${line}" == \#* ]] && continue
+
+        # Strip inline comments
+        network=$(echo "${line}" | sed 's/#.*//' | tr -d ' ')
+        [[ -z "${network}" ]] && continue
+
+        # Parse IP and CIDR
+        if [[ "${network}" == *"/"* ]]; then
+            dest_ip=$(echo "${network}" | cut -d'/' -f1)
+            cidr=$(echo "${network}" | cut -d'/' -f2)
+        else
+            dest_ip="${network}"
+            cidr="32"
+        fi
+
+        netmask=$(cidr_to_mask "${cidr}")
+
+        echo "Route: ${dest_ip}/${cidr} (${netmask})"
+
+        for fw in "${FIREWALLS[@]}"; do
+            add_blackhole_route "${fw}" "${dest_ip}" "${netmask}"
+        done
+
+        echo ""
+    done < "${BLACKHOLE_FILE}"
+done
 
 echo "=== Done ==="

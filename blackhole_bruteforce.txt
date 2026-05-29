@@ -1,0 +1,31 @@
+# Blackhole Routes - VPN Brute-Force Attackers
+# Provider networks and individual attacker IPs from VPN portal auth logs
+# Run with: OP_BIOMETRIC_UNLOCK_ENABLED=true op run --env-file=.env -- ./blackhole.sh
+
+# --- Provider Networks ---
+23.168.216.0/24  # Hayashimo LLC (AS399935)
+23.234.64.0/18  # tzulo, inc. (AS11878)
+68.235.32.0/19  # tzulo, inc. (AS11878)
+173.249.192.0/18  # tzulo, inc. (AS11878)
+
+# --- Individual IPs ---
+23.162.40.23/32
+37.19.210.16/32
+103.102.246.197/32
+103.251.26.154/32
+104.36.50.23/32
+138.199.43.75/32
+138.199.43.95/32
+138.199.43.98/32
+146.70.165.188/32
+146.70.166.183/32
+146.70.166.249/32
+146.70.171.107/32
+146.70.171.178/32
+146.70.172.168/32
+146.70.187.181/32
+149.40.50.111/32
+155.2.191.66/32
+155.2.191.127/32
+185.156.46.141/32
+185.213.193.54/32
