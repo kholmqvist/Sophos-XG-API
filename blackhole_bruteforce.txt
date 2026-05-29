@@ -37,3 +37,9 @@
 
 # --- Added 2026-05-29 (third wave) ---
 23.162.8.0/24  # Jone Broadband LLC (AS25737)
+77.91.118.0/24  # Lexistar Alliance LTD (AS209896)
+89.37.62.0/23  # Datacamp Limited (AS212238)
+157.173.27.0/24  # Evolus IT Solutions GmbH (AS216416)
+170.62.0.0/16  # Datacamp Limited (AS212238)
+185.195.232.0/22  # 31173 Services AB (AS39351)
+185.254.75.0/24  # Owl Limited (AS43357)
