@@ -90,11 +90,10 @@ add_blackhole_route() {
         echo -e "  ${GREEN}[OK]${NC} ${fw_name} - ${dest_ip}/${netmask}"
     elif echo "${response}" | grep -q "Authentication Successful"; then
         local status_msg
-        status_msg=$(echo "${response}" | grep -oP '(?<=<Status code=")[^"]+' | tail -1)
+        status_msg=$(echo "${response}" | sed -n 's/.*<Status code="\([^"]*\)".*/\1/p' | tail -1)
         local status_text
-        status_text=$(echo "${response}" | grep -oP '(?<=<Status code="[0-9]{3}">)[^<]+' | tail -1)
-        echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${dest_ip}/${netmask} (code: ${status_msg})"
-        echo "        ${status_text}"
+        status_text=$(echo "${response}" | sed -n 's/.*<Status code="[0-9]*">\([^<]*\).*/\1/p' | tail -1)
+        echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${dest_ip}/${netmask} (${status_msg}: ${status_text})"
     else
         echo -e "  ${RED}[FAIL]${NC} ${fw_name} - ${dest_ip}/${netmask}"
         echo "        ${response}"
