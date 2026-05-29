@@ -4,6 +4,7 @@
 # Single IPs are treated as /32
 # Run with: OP_BIOMETRIC_UNLOCK_ENABLED=true op run --env-file=.env -- ./blackhole.sh
 
+5.161.132.171/32
 43.225.189.138/32
 45.3.0.0/16
 65.111.0.0/16
@@ -27,4 +28,3 @@
 216.26.0.0/16
 216.162.44.30/32
 216.173.77.117/32
-5.161.132.171/32
