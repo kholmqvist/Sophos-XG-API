@@ -9,7 +9,7 @@ set -euo pipefail
 BLACKHOLE_FILE="blackhole.txt"
 
 # Define firewall names (must match env var prefixes)
-FIREWALLS=("FREJA" "ODENSE")
+FIREWALLS=("FREJA" "ODENSE" "INDIA" "THAILAND" "ENGLAND" "USA")
 
 # Colors for output
 RED='\033[0;31m'
