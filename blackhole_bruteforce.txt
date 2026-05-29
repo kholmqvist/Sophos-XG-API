@@ -21,3 +21,14 @@
 185.156.46.0/24  # Datacamp Limited (AS212238)
 185.200.116.0/22  # M247 Europe SRL (AS9009)
 185.213.193.0/24  # Zenlayer Inc (AS21859)
+
+# --- Added 2026-05-29 (second wave) ---
+23.159.216.0/24  # Byte Node LLC (AS17243)
+23.160.24.0/24  # Data Bridge Limited (AS30671)
+45.134.0.0/16  # Datacamp Limited (AS212238)
+45.237.85.146/32  # HAMMERHEAD DIVE S.A. (AS266820)
+79.127.128.0/17  # Datacamp Limited (AS60068)
+87.249.128.0/19  # Datacamp Limited (AS212238)
+103.81.230.0/23  # HostRoyale Technologies (AS203020)
+142.147.88.0/21  # xTom (AS6233)
+143.244.32.0/19  # Datacamp Limited (AS212238)
