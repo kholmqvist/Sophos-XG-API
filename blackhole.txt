@@ -6,6 +6,15 @@
 45.3.0.0/16  # Start Communications (AS40788)
 45.88.186.227/32  # FireHOL
 65.111.0.0/16  # 3xK Tech GmbH (AS200373)
+66.132.148.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.153.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.172.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.186.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.195.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.198.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.224.0/24  # Censys, Inc. (AS398324) - scanner
+66.132.228.0/24  # Censys, Inc. (AS398324) - scanner
+66.234.1.0/24  # Censys, Inc. (AS398324) - scanner
 77.91.71.0/24  # Alferov Aleksey Aleksandrovich (AS211486)
 85.11.187.0/24  # Alferov Aleksey Aleksandrovich (AS211486)
 85.217.140.0/24  # Modat B.V. (AS209334) - scanner
@@ -18,11 +27,15 @@
 104.207.0.0/16  # Winnebago Cooperative Telecom (AS46892)
 104.243.250.0/24  # Contrust Solutions S.R.L. (AS201813)
 109.160.40.0/24  # Contrust Solutions S.R.L. (AS201813)
+162.142.125.0/24  # Censys, Inc. (AS398324) - scanner
+167.94.138.0/24  # Censys, Inc. (AS398324) - scanner
+167.248.133.0/24  # Censys, Inc. (AS398324) - scanner
 180.76.237.47/32  # ThreatHive
 185.228.72.180/32  # ThreatHive
 193.56.0.0/16  # Lodosnet Bilisim (AS211425)
 193.163.125.213/32  # FireHOL
 193.163.125.216/32  # FireHOL
+206.168.35.0/24  # Censys, Inc. (AS398324) - scanner
 208.84.100.162/32  # ThreatHive
 209.50.0.0/16  # Allo Communications LLC (AS15108)
 212.73.148.0/24  # Modat B.V. (AS209334) - scanner

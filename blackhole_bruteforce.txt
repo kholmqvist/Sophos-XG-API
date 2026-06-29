@@ -25,7 +25,6 @@
 # --- Added 2026-05-29 (second wave) ---
 23.159.216.0/24  # Byte Node LLC (AS17243)
 23.160.24.0/24  # Data Bridge Limited (AS30671)
-45.134.0.0/16  # Datacamp Limited (AS212238)
 45.237.85.146/32  # HAMMERHEAD DIVE S.A. (AS266820)
 79.127.128.0/17  # Datacamp Limited (AS60068)
 87.249.128.0/19  # Datacamp Limited (AS212238)
@@ -43,3 +42,16 @@
 170.62.0.0/16  # Datacamp Limited (AS212238)
 185.195.232.0/22  # 31173 Services AB (AS39351)
 185.254.75.0/24  # Owl Limited (AS43357)
+
+# --- Added 2026-06-02 ---
+45.237.85.0/24  # Lawrence Elkins (AS267669)
+168.228.47.0/24  # Alex Louie (AS27823)
+191.102.172.0/23  # Corporate Network
+
+# --- Added 2026-06-04 ---
+45.205.1.241/32  # FireHOL
+45.205.1.242/32  # FireHOL
+134.122.28.88/32  # ThreatHive
+144.202.82.88/32  # ThreatHive
+205.210.31.56/32  # FireHOL
+212.102.40.218/32  # ThreatHive
