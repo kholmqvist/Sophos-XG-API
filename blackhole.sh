@@ -7,6 +7,9 @@
 set -euo pipefail
 
 BLACKHOLE_FILES=("blackhole.txt" "blackhole_bruteforce.txt")
+if [[ -n "${BLACKHOLE_FILE:-}" ]]; then
+    BLACKHOLE_FILES=("${BLACKHOLE_FILE}")
+fi
 
 # Define firewall names (must match env var prefixes)
 FIREWALLS=("FREJA" "ODENSE" "INDIA" "THAILAND" "ENGLAND" "USA")
