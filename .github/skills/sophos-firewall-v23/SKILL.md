@@ -15,6 +15,7 @@ Use this skill to plan, review, create, and verify IPv4 firewall policy rules on
 - Never modify or delete existing firewall rules. If the requested behavior requires changing an existing rule, stop and explain why instead of working around it with a broader or duplicate rule.
 - Treat firewall writes as live configuration changes. Before any write, show the target firewall, each rule and supporting object to be created, the proposed order, and the expected traffic effect. Ask for explicit user confirmation. Do not treat a request to create a rule as confirmation of a specific plan if details remain unresolved.
 - Never expose, print, commit, or persist API keys. Use a user-approved secret source; do not place credentials in command arguments, files, or logs. Do not disable TLS verification to work around certificate errors.
+- For the V23 demo, use the `SOPHOS_FIREWALL_V23_DEMO` item in the personal `my.1password.com` account (`Private` vault). Resolve only its `hostname` and `credential` references with `OP_ACCOUNT=my.1password.com` and `OP_BIOMETRIC_UNLOCK_ENABLED=true`; do not load the entire `.env` under that account because it also references `NP-IT-Shared` work-vault items. Never print the resolved values.
 - If the API version, target firewall, authorization, requested traffic, or rule placement cannot be verified, stop before making changes and report the blocker.
 
 ## Workflow
