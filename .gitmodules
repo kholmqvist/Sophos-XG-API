@@ -1,0 +1,3 @@
+[submodule "AI-Template"]
+	path = AI-Template
+	url = https://github.com/kholmqvist/AI-Template.git
